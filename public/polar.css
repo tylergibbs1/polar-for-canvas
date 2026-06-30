@@ -1,0 +1,2366 @@
+/* =====================================================================
+   Polar for Canvas
+   The visual language of Polar applied to Canvas LMS.
+   A precise, monochrome system built to stay legible at any scale.
+
+   Palette
+     Night   #171717  Surface
+     Ash     #1D1D1D  Raised
+     Mist    #7b7b7b  Secondary
+     Snow    #BDBDBD  Foreground
+     Ether   #3619CC  Accent  (reserved for energy)
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Bundled fonts (optional)
+   Relative url()s resolve against this stylesheet's origin — the
+   extension itself — so dropping the files in public/fonts/ is enough.
+   Until then these @font-face rules fail silently and the stack falls
+   back to Inter (sans) / Geist Mono via Google Fonts (mono).
+
+   PP Neue Montreal is COMMERCIAL — supply your own licensed .woff2.
+   Expected filenames are listed in public/fonts/README.md.
+   --------------------------------------------------------------------- */
+/* Medium is bundled. Book (400) and SemiBold (600) prefer their own files but
+   fall back to the bundled Medium, so the whole UI is consistently Neue
+   Montreal even with only one weight present. Add the other .woff2 files to
+   restore weight contrast. */
+@font-face {
+  font-family: "PP Neue Montreal";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/PPNeueMontreal-Book.woff2") format("woff2"),
+    url("/fonts/PPNeueMontreal-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "PP Neue Montreal";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/PPNeueMontreal-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "PP Neue Montreal";
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/PPNeueMontreal-SemiBold.woff2") format("woff2"),
+    url("/fonts/PPNeueMontreal-Medium.woff2") format("woff2");
+}
+/* Geist Mono is open (OFL). Bundle it to avoid relying on the Google
+   Fonts CDN (some Canvas CSP configs block it). */
+@font-face {
+  font-family: "Geist Mono";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/GeistMono-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/GeistMono-Medium.woff2") format("woff2");
+}
+
+:root.polar-active {
+  /* Core palette */
+  --polar-night: #171717;
+  --polar-ash: #1d1d1d;
+  --polar-mist: #7b7b7b;
+  --polar-snow: #bdbdbd;
+  --polar-ether: #3619cc;
+
+  /* Derived neutrals (single hue, no chroma) */
+  --polar-void: #101010;   /* deepest surface */
+  --polar-line: #2a2a2a;   /* hairline borders */
+  --polar-line-2: #333333; /* raised borders */
+  --polar-raised-2: #242424;
+  --polar-foreground: #f5f5f5; /* near-white headings */
+  --polar-ether-soft: rgba(54, 25, 204, 0.16);
+  --polar-ether-line: rgba(54, 25, 204, 0.45);
+  --polar-ether-bright: #5a3df0; /* legible accent on dark */
+
+  /* Type */
+  --polar-sans: "PP Neue Montreal", "Neue Montreal", "NeueMontreal",
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --polar-mono: "Geist Mono", "GeistMono", ui-monospace, "SF Mono", "JetBrains Mono",
+    "Menlo", "Consolas", monospace;
+
+  --polar-radius: 10px;
+  --polar-radius-sm: 6px;
+
+  /* ---------------------------------------------------------------
+     Canvas brand variables — Canvas/InstUI read these for branded
+     buttons, links, and global nav. Overriding them re-themes the
+     framework's own components without chasing hashed class names.
+     (Verified live against an Instructure-hosted instance.)
+     --------------------------------------------------------------- */
+  --ic-brand-primary: #7d6cf0 !important;
+  --ic-brand-font-color-dark: #f5f5f5 !important;
+  --ic-link-color: #8a78f5 !important;
+  --ic-brand-button--primary-bgd: #3619cc !important;
+  --ic-brand-button--primary-text: #ffffff !important;
+  --ic-brand-button--secondary-bgd: #242424 !important;
+  --ic-brand-button--secondary-text: #f5f5f5 !important;
+  --ic-brand-global-nav-bgd: #101010 !important;
+  --ic-brand-global-nav-menu-item__text-color: #7b7b7b !important;
+  --ic-brand-global-nav-menu-item__text-color--active: #f5f5f5 !important;
+  --ic-brand-global-nav-logo-bgd: #101010 !important;
+  --ic-brand-global-nav-ic-icon-svg-fill: #bdbdbd !important;
+  --ic-brand-global-nav-avatar-border: #2a2a2a !important;
+}
+
+/* ---------------------------------------------------------------------
+   1. Surfaces — paint the world Night, raise to Ash
+   --------------------------------------------------------------------- */
+:root.polar-active,
+.polar-active body,
+.polar-active #wrapper,
+.polar-active #application,
+.polar-active #main,
+.polar-active #not_right_side,
+.polar-active .ic-Layout-wrapper,
+.polar-active .ic-Layout-columns,
+.polar-active .ic-Layout-contentWrapper,
+.polar-active .ic-Layout-contentMain,
+.polar-active #content,
+.polar-active #content-wrapper {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+  font-family: var(--polar-sans) !important;
+}
+
+.polar-active body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Generic text + headings */
+.polar-active body,
+.polar-active p,
+.polar-active span,
+.polar-active li,
+.polar-active dd,
+.polar-active dt,
+.polar-active label,
+.polar-active div {
+  color: var(--polar-snow);
+}
+
+.polar-active h1,
+.polar-active h2,
+.polar-active h3,
+.polar-active h4,
+.polar-active h5,
+.polar-active h6,
+.polar-active .ic-Action-header__Heading,
+.polar-active .page-title,
+.polar-active .ig-title {
+  color: var(--polar-foreground) !important;
+  font-family: var(--polar-sans) !important;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+/* Links — Snow by default, Ether on intent */
+.polar-active a,
+.polar-active a:visited {
+  color: var(--polar-snow);
+  text-decoration: none;
+}
+.polar-active a:hover {
+  color: var(--polar-foreground);
+}
+
+/* ---------------------------------------------------------------------
+   2. Global navigation (left rail) — the fixed core
+   --------------------------------------------------------------------- */
+.polar-active #header,
+.polar-active .ic-app-header,
+.polar-active #mobile-header {
+  background-color: var(--polar-void) !important;
+  border-right: 1px solid var(--polar-line) !important;
+  box-shadow: none !important;
+}
+
+.polar-active .ic-app-header__logomark-container .ic-app-header__logomark {
+  border-color: transparent !important;
+}
+
+.polar-active .ic-app-header__menu-list-item .ic-app-header__menu-list-link {
+  color: var(--polar-mist) !important;
+  border-radius: var(--polar-radius-sm);
+}
+.polar-active .ic-app-header__menu-list-item .ic-app-header__menu-list-link .menu-item__text,
+.polar-active .ic-app-header__menu-list-item .ic-app-header__menu-list-link .menu-item-icon-container {
+  color: var(--polar-mist) !important;
+}
+.polar-active .ic-app-header__menu-list-item:hover .ic-app-header__menu-list-link,
+.polar-active .ic-app-header__menu-list-item .ic-app-header__menu-list-link:focus {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ic-app-header__menu-list-item.ic-app-header__menu-list-item--active .ic-app-header__menu-list-link,
+.polar-active .ic-app-header__menu-list-item--active .ic-app-header__menu-list-link .menu-item__text {
+  color: var(--polar-foreground) !important;
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .ic-app-header__menu-list-item.ic-app-header__menu-list-item--active .ic-app-header__menu-list-link::before {
+  background-color: var(--polar-ether-bright) !important;
+  width: 3px !important;
+}
+
+/* Tray / panel that slides out from global nav */
+.polar-active .navigation-tray-container,
+.polar-active .ic-NavMenu-secondary,
+.polar-active .ReactTray__Layout,
+.polar-active [class*="navigationContent"] {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-snow) !important;
+  border-right: 1px solid var(--polar-line) !important;
+}
+
+/* ---------------------------------------------------------------------
+   3. Breadcrumbs + top content area
+   --------------------------------------------------------------------- */
+.polar-active #breadcrumbs {
+  background: var(--polar-ash) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius);
+  overflow: hidden;
+}
+.polar-active #breadcrumbs li a,
+.polar-active #breadcrumbs li span {
+  color: var(--polar-mist) !important;
+}
+.polar-active #breadcrumbs li:last-child span {
+  color: var(--polar-snow) !important;
+}
+.polar-active #breadcrumbs li a::after {
+  border-left-color: var(--polar-line) !important;
+}
+
+/* Dashboard page header bar (defaults to a white 95% overlay) */
+.polar-active .ic-Dashboard-header,
+.polar-active .ic-Dashboard-header__layout {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .ic-Dashboard-header__title,
+.polar-active .ic-Dashboard-header__title h1,
+.polar-active .ic-Dashboard-header h1 {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ic-Dashboard-header__actions a,
+.polar-active .ic-Dashboard-header__actions button {
+  color: var(--polar-mist) !important;
+}
+
+/* ---------------------------------------------------------------------
+   4. Course navigation sidebar
+   --------------------------------------------------------------------- */
+.polar-active #left-side,
+.polar-active .ic-app-course-menu,
+.polar-active body.with-left-side #left-side {
+  background-color: var(--polar-void) !important;
+  border-right: 1px solid var(--polar-line) !important;
+}
+.polar-active #section-tabs li a,
+.polar-active .section-tabs li a {
+  color: var(--polar-mist) !important;
+  border-radius: var(--polar-radius-sm);
+  padding-left: 8px;
+}
+.polar-active #section-tabs li a:hover,
+.polar-active .section-tabs li a:hover {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active #section-tabs li a.active,
+.polar-active #section-tabs li a[aria-current="page"],
+.polar-active .section-tabs li a.active {
+  color: var(--polar-foreground) !important;
+  border-left: 3px solid var(--polar-ether-bright) !important;
+  background-color: var(--polar-ash) !important;
+}
+/* Course-nav count badge → Ether */
+.polar-active #section-tabs li a .nav-badge {
+  background-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+}
+
+/* ---------------------------------------------------------------------
+   5. Dashboard cards — raise to Ash, retire the rainbow
+   --------------------------------------------------------------------- */
+.polar-active .ic-DashboardCard {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.polar-active .ic-DashboardCard:hover {
+  border-color: var(--polar-line-2) !important;
+  transform: translateY(-2px);
+}
+/* The colored "hero" band → uniform neutral, no accent (Ether is reserved
+   for interactive energy, not decoration). */
+.polar-active .ic-DashboardCard__header_hero {
+  background-color: var(--polar-raised-2) !important;
+  opacity: 1 !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  height: 132px !important;
+  position: relative;
+}
+.polar-active .ic-DashboardCard__header_content {
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .ic-DashboardCard__header-title,
+.polar-active .ic-DashboardCard__header-title span,
+.polar-active .ic-DashboardCard__header-subtitle {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ic-DashboardCard__header-term {
+  color: var(--polar-mist) !important;
+}
+.polar-active .ic-DashboardCard__action-container .ic-DashboardCard__action {
+  color: var(--polar-mist) !important;
+}
+.polar-active .ic-DashboardCard__action-container .ic-DashboardCard__action:hover {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ic-DashboardCard__box__header {
+  color: var(--polar-foreground) !important;
+}
+
+/* ---------------------------------------------------------------------
+   6. Cards, panels, well-like containers
+   --------------------------------------------------------------------- */
+.polar-active .ic-Card,
+.polar-active .content-box,
+.polar-active .well,
+.polar-active .ui-widget-content,
+.polar-active .Panel,
+.polar-active .ic-Dashboard-header,
+.polar-active .events_list,
+.polar-active .summary,
+.polar-active .ic-Form-control,
+.polar-active .ic-notification {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: none !important;
+  color: var(--polar-snow) !important;
+}
+
+/* Right-hand "To Do" / sidebar */
+.polar-active #right-side-wrapper #right-side,
+.polar-active .Sidebar__TodoListContainer,
+.polar-active .todo-list,
+.polar-active .coming_up {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .events_list .event,
+.polar-active .todo-list .todo {
+  border-bottom: 1px solid var(--polar-line) !important;
+}
+
+/* ---------------------------------------------------------------------
+   7. Buttons — quiet by default, Ether for the primary act
+   --------------------------------------------------------------------- */
+.polar-active .btn,
+.polar-active .Button,
+.polar-active button.ui-button,
+.polar-active .ic-Action-header__Secondary .btn {
+  background-image: none !important;
+  background-color: var(--polar-raised-2) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-family: var(--polar-sans) !important;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.polar-active .btn:hover,
+.polar-active .Button:hover,
+.polar-active button.ui-button:hover {
+  background-color: #2c2c2c !important;
+  border-color: var(--polar-mist) !important;
+  color: var(--polar-foreground) !important;
+}
+
+.polar-active .btn-primary,
+.polar-active .Button--primary,
+.polar-active .Button.Button--primary {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+.polar-active .btn-primary:hover,
+.polar-active .Button--primary:hover {
+  background-color: var(--polar-ether-bright) !important;
+  border-color: var(--polar-ether-bright) !important;
+  color: #ffffff !important;
+}
+.polar-active .btn-danger,
+.polar-active .Button--danger {
+  background-color: #2a1414 !important;
+  border-color: #5a2a2a !important;
+  color: #e6a6a6 !important;
+}
+
+/* InstUI (emotion) primary buttons bake the brand color in at render
+   time, so the variable override above can't reach them. The emotion
+   hash is unstable but the `baseButton__content` suffix is stable.
+   Primary actions in Canvas are type=submit — recolor those to Ether. */
+.polar-active button[type="submit"] [class*="baseButton__content"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+.polar-active button[type="submit"] [class*="baseButton__content"] * {
+  color: #ffffff !important;
+}
+
+/* Many InstUI primary buttons are type=button or <a> (e.g. "Add Discussion")
+   and carry no DOM marker — only the baked-in brand fill differs. The content
+   script tags them by color: `data-polar="primary"` for vivid brand fills,
+   `data-polar="light"` for white/near-white fills. */
+.polar-active [data-polar="primary"][class*="baseButton__content"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+.polar-active [data-polar="primary"][class*="baseButton__content"] * {
+  color: #ffffff !important;
+}
+.polar-active [data-polar="light"][class*="baseButton__content"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+}
+.polar-active [data-polar="light"][class*="baseButton__content"] * {
+  color: var(--polar-snow) !important;
+}
+
+/* Generalized runtime fixer (see content.ts): the safety net that catches any
+   light-theme remnant the static rules above miss — flagged by data-pf-*
+   attributes the content script applies after the theme is live. */
+.polar-active [data-pf-bg="0"] {
+  background-color: transparent !important; /* near-white → Night shows through */
+}
+.polar-active [data-pf-bg="1"] {
+  background-color: var(--polar-ash) !important; /* light-gray → raised */
+}
+.polar-active [data-pf-border="1"] {
+  border-color: var(--polar-line) !important;
+}
+.polar-active [data-pf-text="1"] {
+  color: var(--polar-snow) !important;
+}
+
+/* Segmented toggles / pressed states → Ether */
+.polar-active .ui-buttonset .ui-state-active,
+.polar-active .btn[aria-pressed="true"],
+.polar-active [role="button"][aria-pressed="true"],
+.polar-active .btn.active {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+
+/* InstUI RadioInput rendered as a segmented toggle (e.g. the Assignments
+   "Show by Date / Show by Type" control). The checked segment defaults to a
+   green "success" facade — recolor it to Ether, quiet the rest. */
+.polar-active [class*="radioInput__facade"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="radioInput__label"] {
+  color: var(--polar-snow) !important;
+}
+.polar-active input:checked + label [class*="radioInput__facade"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+.polar-active input:checked + label [class*="radioInput__label"] {
+  color: #ffffff !important;
+}
+
+/* "header-bar" toolbar (Assignments / Files / etc.) defaults to white */
+.polar-active .header-bar,
+.polar-active .header-bar-right,
+.polar-active .header-bar__left {
+  background-color: var(--polar-night) !important;
+  border-color: var(--polar-line) !important;
+}
+
+/* ---------------------------------------------------------------------
+   8. Forms & inputs
+   --------------------------------------------------------------------- */
+.polar-active input[type="text"],
+.polar-active input[type="search"],
+.polar-active input[type="email"],
+.polar-active input[type="password"],
+.polar-active input[type="number"],
+.polar-active input[type="url"],
+.polar-active textarea,
+.polar-active select,
+.polar-active .ic-Input {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  color: var(--polar-foreground) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  box-shadow: none !important;
+}
+.polar-active input::placeholder,
+.polar-active textarea::placeholder {
+  color: var(--polar-mist) !important;
+}
+.polar-active input:focus,
+.polar-active textarea:focus,
+.polar-active select:focus {
+  border-color: var(--polar-ether-bright) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--polar-ether-soft) !important;
+}
+
+/* InstUI TextInput (e.g. the index "Search" field) paints its background on a
+   `textInput__facade` span while the real <input> stays transparent. */
+.polar-active [class*="textInput__facade"] {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+}
+.polar-active [class*="textInput__input"] {
+  background-color: transparent !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="textInput__input"]::placeholder {
+  color: var(--polar-mist) !important;
+}
+
+/* ---------------------------------------------------------------------
+   9. Tables & data — Geist Mono carries the numbers
+   --------------------------------------------------------------------- */
+.polar-active table,
+.polar-active .ic-Table {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active th,
+.polar-active .ic-Table th {
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.78em;
+}
+/* Row-header cells (<th scope="row">) get an explicit white fill from Canvas
+   (e.g. the grade-weights `table.summary` group column). Same systemic gap as
+   td — flatten them; column headers keep their styling. */
+.polar-active th[scope="row"],
+.polar-active tbody tr > th[scope="row"] {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.polar-active table.summary th,
+.polar-active table.summary td {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active td,
+.polar-active .ic-Table td {
+  /* Default cell background to transparent so the Night/Ash surface shows
+     through. Canvas gives some cells (e.g. #syllabus td.name) an explicit
+     light fill; more-specific colored-cell rules below still win. */
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active tr:hover td {
+  background-color: var(--polar-ash) !important;
+}
+/* Syllabus course-summary table (table#syllabus) + past-date dimming */
+.polar-active #syllabus tr.date_passed td {
+  opacity: 0.62;
+}
+.polar-active .mini_month td.day {
+  background-color: transparent !important;
+}
+.polar-active .mini_month td.day.has_event,
+.polar-active .mini_calendar_day.has_event {
+  background-color: var(--polar-raised-2) !important;
+}
+/* Striped/clickable list rows (Pages index, etc.) default to white on the
+   odd rows — flatten them and use Ash only on hover. */
+.polar-active tr.clickable,
+.polar-active tbody tr,
+.polar-active tr.even,
+.polar-active tr.odd,
+.polar-active .ic-Table--striped tbody tr:nth-child(odd) {
+  background-color: transparent !important;
+}
+.polar-active tr.clickable:hover,
+.polar-active tbody tr:hover {
+  background-color: var(--polar-ash) !important;
+}
+
+/* Grades, points, scores, counts → monospace, tabular */
+.polar-active .grade,
+.polar-active .score,
+.polar-active .points_possible,
+.polar-active .tooltip_wrap .grade,
+.polar-active .react-gradebook td,
+.polar-active .submission_status,
+.polar-active .ic-DashboardCard__header-term,
+.polar-active code,
+.polar-active pre,
+.polar-active kbd,
+.polar-active tt {
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+.polar-active code,
+.polar-active pre {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-foreground) !important;
+}
+
+/* ---------------------------------------------------------------------
+   10. Lists, modules, assignment rows
+   --------------------------------------------------------------------- */
+/* The container behind module groups defaults to white and shows through
+   the gaps between modules. */
+.polar-active .item-group-container,
+.polar-active #context_modules,
+.polar-active .context_modules_sortable_container {
+  background-color: var(--polar-night) !important;
+}
+/* Prev/next module navigation footer at the bottom of pages/items */
+.polar-active .module-sequence-footer-content,
+.polar-active .module-sequence-footer,
+.polar-active .module-sequence-padding {
+  background-color: transparent !important;
+}
+.polar-active .ig-list .ig-row,
+.polar-active .context_module,
+.polar-active .item-group-condensed,
+.polar-active .ic-Item-row {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .context_module .header,
+.polar-active .ig-header {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ig-header .name,
+.polar-active .ig-header-title,
+.polar-active .context_module .header .name,
+.polar-active .item-group-condensed .ig-header-title {
+  color: var(--polar-foreground) !important;
+  font-weight: 600;
+}
+.polar-active .ig-row:hover {
+  background-color: var(--polar-raised-2) !important;
+}
+.polar-active .ig-title,
+.polar-active .item_name a {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ig-details,
+.polar-active .ig-details__item {
+  color: var(--polar-mist) !important;
+}
+
+/* ---------------------------------------------------------------------
+   11. Tabs (InstUI / jQuery UI)
+   --------------------------------------------------------------------- */
+.polar-active .ui-tabs .ui-tabs-nav,
+.polar-active [role="tablist"] {
+  background: transparent !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+}
+/* jQuery-UI tabs paint the <li> white via .ui-state-default/-active (e.g. the
+   People "Everyone/Groups" tabs) — flatten the tab background. */
+.polar-active .ui-tabs .ui-tabs-nav li,
+.polar-active .ui-tabs .ui-tabs-nav li.ui-state-default,
+.polar-active .ui-tabs .ui-tabs-nav li.ui-state-active,
+.polar-active .ui-tabs .ui-tabs-nav li.ui-state-hover {
+  background: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .ui-tabs .ui-tabs-nav li a,
+.polar-active [role="tab"] {
+  color: var(--polar-mist) !important;
+}
+.polar-active .ui-tabs .ui-tabs-nav li.ui-state-active a,
+.polar-active [role="tab"][aria-selected="true"] {
+  color: var(--polar-foreground) !important;
+  border-bottom: 2px solid var(--polar-ether-bright) !important;
+}
+
+/* ---------------------------------------------------------------------
+   12. Modals, menus, tooltips, popovers
+   --------------------------------------------------------------------- */
+.polar-active .ui-dialog,
+.polar-active .ReactModal__Content,
+.polar-active [class*="modalContent"],
+.polar-active [class*="ModalBody"],
+.polar-active .ui-menu,
+.polar-active .ui-widget-content.ui-autocomplete,
+.polar-active [class*="menuContent"],
+.polar-active [class*="popoverContent"] {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+/* InstUI Modal — emotion suffixes are lowercase (`modal`, `modalHeader`,
+   `modalBody`, `modalFooter`); the earlier capitalized selectors never
+   matched, leaving the Compose/Conversations modal surface white. */
+.polar-active [role="dialog"][class*="-modal"],
+.polar-active [class*="-modalHeader"],
+.polar-active [class*="-modalBody"],
+.polar-active [class*="-modalFooter"] {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active [class*="-modalHeader"] {
+  border-bottom: 1px solid var(--polar-line) !important;
+}
+.polar-active [class*="-modalFooter"] {
+  border-top: 1px solid var(--polar-line) !important;
+}
+/* The modal/tray scrim (InstUI Mask) defaults to a 75% WHITE overlay, which
+   whitens the page behind the dialog on a dark theme. Make it a dark dim. */
+.polar-active [class*="-mask"] {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active [class*="-modalHeader"] [class*="heading"],
+.polar-active [class*="-modalHeader"] h1,
+.polar-active [class*="-modalHeader"] h2 {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ui-dialog .ui-dialog-titlebar,
+.polar-active [class*="ModalHeader"] {
+  background-color: var(--polar-ash) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ui-menu .ui-menu-item a:hover,
+.polar-active [class*="menuItem"]:hover {
+  background-color: var(--polar-ether-soft) !important;
+  color: var(--polar-foreground) !important;
+}
+
+/* ---------------------------------------------------------------------
+   13. Misc — alerts, badges, progress, scrollbars
+   --------------------------------------------------------------------- */
+.polar-active .badge,
+.polar-active .unread-count,
+.polar-active .ic-app-header__menu-list-link .menu-item__badge {
+  background-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+.polar-active .progress-bar,
+.polar-active [class*="progressBar"] [class*="meter"] {
+  background-color: var(--polar-ether-bright) !important;
+}
+.polar-active hr {
+  border-color: var(--polar-line) !important;
+}
+
+/* Selection */
+.polar-active ::selection {
+  background: var(--polar-ether-soft);
+  color: var(--polar-foreground);
+}
+
+/* Scrollbars */
+.polar-active ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.polar-active ::-webkit-scrollbar-track {
+  background: var(--polar-night);
+}
+.polar-active ::-webkit-scrollbar-thumb {
+  background: var(--polar-line-2);
+  border-radius: 6px;
+  border: 3px solid var(--polar-night);
+}
+.polar-active ::-webkit-scrollbar-thumb:hover {
+  background: var(--polar-mist);
+}
+
+/* ---------------------------------------------------------------------
+   14. Third-party LTI widgets (e.g. "Tasks for Canvas" — styled-components)
+   These ship hashed class names; the stable hook is the `sc-` prefix.
+   --------------------------------------------------------------------- */
+.polar-active .ic-app-main-content__secondary [class^="sc-"],
+.polar-active .ic-app-main-content__secondary [class*=" sc-"],
+.polar-active #right-side [class^="sc-"],
+.polar-active #right-side [class*=" sc-"] {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+/* The widget's outer card → raise to Ash */
+.polar-active .ic-app-main-content__secondary > div > [class^="sc-"],
+.polar-active .ic-app-main-content__secondary [class^="sc-"][class*=" "]:not(button) {
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active .ic-app-main-content__secondary [class^="sc-"] h1,
+.polar-active .ic-app-main-content__secondary [class^="sc-"] h2,
+.polar-active .ic-app-main-content__secondary [class^="sc-"] h3,
+.polar-active .ic-app-main-content__secondary [class^="sc-"] strong {
+  color: var(--polar-foreground) !important;
+}
+
+/* ---------------------------------------------------------------------
+   15. Calendar
+   --------------------------------------------------------------------- */
+.polar-active .fc-toolbar,
+.polar-active .fc-view-container,
+.polar-active .fc-content,
+.polar-active .calendar_links {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .fc-day,
+.polar-active .fc-widget-content,
+.polar-active .fc-widget-header,
+.polar-active .fc-head,
+.polar-active .fc-body {
+  background-color: var(--polar-night) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .fc-today,
+.polar-active .fc-state-highlight {
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .fc-day-number,
+.polar-active .fc-day-header,
+.polar-active .fc-week-number {
+  color: var(--polar-snow) !important;
+}
+.polar-active .mini_month .day.today .day_number {
+  background-color: var(--polar-ether) !important;
+  color: #fff !important;
+}
+.polar-active .context-list li,
+.polar-active .calendar-list .context_list_context {
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+
+/* ---------------------------------------------------------------------
+   16. Inbox / Conversations
+   --------------------------------------------------------------------- */
+.polar-active .conversations,
+.polar-active .messages,
+.polar-active .message-list,
+.polar-active .ic-ConversationsList,
+.polar-active .conversation,
+.polar-active .actions {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .conversation.active,
+.polar-active .conversation:hover {
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .conversation .actions .audience,
+.polar-active .conversation .subject {
+  color: var(--polar-foreground) !important;
+}
+
+/* ---------------------------------------------------------------------
+   17. Files, discussions, quizzes, content pages
+   --------------------------------------------------------------------- */
+.polar-active .ef-main,
+.polar-active .ef-directory,
+.polar-active .ef-folder-list,
+.polar-active .ef-item-row,
+.polar-active .ef-name-col {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .ef-item-row:hover,
+.polar-active .ef-item-row.ef-item-selected {
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .discussion-entries .entry,
+.polar-active .discussion_entry,
+.polar-active .entry-content,
+.polar-active .discussion-section,
+.polar-active .quiz-header,
+.polar-active .question_holder,
+.polar-active .question,
+.polar-active .answers,
+.polar-active .user_content,
+.polar-active .show-content {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .question {
+  background-color: var(--polar-ash) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active .answer:hover {
+  background-color: var(--polar-raised-2) !important;
+}
+
+/* Generic Canvas surfaces that default to white/gray */
+.polar-active .ic-Layout-contentMain *[style*="background-color: rgb(255, 255, 255)"],
+.polar-active .ic-Layout-contentMain *[style*="background: rgb(255, 255, 255)"] {
+  background-color: var(--polar-ash) !important;
+}
+
+/* Keep media legible — don't tint user images/avatars */
+.polar-active img,
+.polar-active video,
+.polar-active canvas,
+.polar-active .avatar {
+  filter: none !important;
+}
+
+
+/* =====================================================================
+   Polar for Canvas — Consolidated gap-fill (sections 18–32)
+   Appended: surfaces that still render light because no earlier rule
+   reaches them. All scoped under .polar-active, palette vars + !important.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   18. InstUI overlays the existing popover/menu rules miss
+   (Tooltip ContextView, generic Tray, Spinner, Pagination, menu detail)
+   --------------------------------------------------------------------- */
+/* Tooltip + ContextView bubble (popoverContent rule does NOT match these) */
+.polar-active [class*="tooltip__content"],
+.polar-active [class*="-contextView"] {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active [class*="-contextView"] span,
+.polar-active [class*="-contextView"] p,
+.polar-active [class*="tooltip__content"] * {
+  color: var(--polar-snow) !important;
+}
+/* ContextView pointer arrow (drawn with pseudo border/background) */
+.polar-active [class*="-contextView"]::before,
+.polar-active [class*="-contextView"]::after {
+  border-color: var(--polar-line-2) !important;
+  background-color: var(--polar-void) !important;
+}
+
+/* Generic InstUI Tray content (SubmissionTray, student context tray,
+   Message-Students-Who, Move-To, etc.). tray__overlay backdrop left dim. */
+.polar-active [class*="tray__content"] {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.5) !important;
+}
+.polar-active [class*="tray__content"] [class*="heading"],
+.polar-active [class*="tray__content"] h1,
+.polar-active [class*="tray__content"] h2 {
+  color: var(--polar-foreground) !important;
+}
+
+/* Spinner (SVG strokes, not background) */
+.polar-active [class*="spinner__circleTrack"] {
+  stroke: var(--polar-line) !important;
+}
+.polar-active [class*="spinner__circleSpin"] {
+  stroke: var(--polar-ether-bright) !important;
+}
+
+/* Menu detail the menuItem:hover rule misses: keyboard/selected, icons,
+   group labels, separators */
+.polar-active [class*="-menuItem"]:focus,
+.polar-active [class*="-menuItem"][class*="--selected"],
+.polar-active [class*="-menuItem"][aria-checked="true"] {
+  background-color: var(--polar-ether-soft) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="menuItem__icon"],
+.polar-active [class*="menuItemGroup__label"] {
+  color: var(--polar-mist) !important;
+}
+.polar-active [class*="menuItemSeparator"] {
+  background-color: var(--polar-line) !important;
+  border-color: var(--polar-line) !important;
+}
+
+/* Legacy will_paginate chips + InstUI current-page button */
+.polar-active .pagination > li > a,
+.polar-active .pagination > li > span,
+.polar-active .paginatedView .pagination li a {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .pagination > li.active > a,
+.polar-active .pagination > li.active > span {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+.polar-active [class*="pagination"] button[aria-current="page"] [class*="baseButton__content"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+.polar-active [class*="pagination"] button[aria-current="page"] [class*="baseButton__content"] * {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------------------
+   19. Flash / status banners (scoped to flash holders — NOT global -alert,
+   so page-level semantic alerts keep their hue)
+   --------------------------------------------------------------------- */
+.polar-active #flash_message_holder,
+.polar-active #flashalert_message_holder {
+  background-color: transparent !important;
+}
+.polar-active .ic-flash-info {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .ic-flash-success {
+  background-color: #13231a !important;
+  border-color: #2f6b4a !important;
+  color: #a7e0c0 !important;
+}
+.polar-active .ic-flash-error,
+.polar-active .ic-flash-danger {
+  background-color: #2a1414 !important;
+  border-color: #5a2a2a !important;
+  color: #e6a6a6 !important;
+}
+.polar-active .ic-flash-warning {
+  background-color: #2a2412 !important;
+  border-color: #6b5a2f !important;
+  color: #e0d0a0 !important;
+}
+/* InstUI flash Alert inside the flash holder only (keeps status SVG icon color) */
+.polar-active #flashalert_message_holder [class*="-alert"] {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+
+/* ---------------------------------------------------------------------
+   20. Legacy jQuery-UI dialog chrome the .ui-dialog container rule misses
+   --------------------------------------------------------------------- */
+.polar-active .ui-dialog .ui-dialog-content {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .ui-dialog .ui-dialog-buttonpane,
+.polar-active .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+  background-color: var(--polar-ash) !important;
+  border-top: 1px solid var(--polar-line) !important;
+}
+.polar-active .ui-dialog .ui-dialog-titlebar-close {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-mist) !important;
+  box-shadow: none !important;
+}
+.polar-active .ui-dialog .ui-dialog-titlebar-close:hover {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-foreground) !important;
+}
+/* Alert / FileDrop / Billboard embedded inside dialogs (scoped) */
+.polar-active [class*="-modalBody"] [class*="-alert"],
+.polar-active .ui-dialog [class*="-alert"] {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line-2) !important;
+}
+
+/* ---------------------------------------------------------------------
+   21. InstUI FileDrop (merged: layout + label + inner Billboard)
+   --------------------------------------------------------------------- */
+.polar-active [class*="fileDrop__layout"],
+.polar-active [class*="fileDrop__label"],
+.polar-active [class*="-fileDrop"] {
+  background-color: var(--polar-void) !important;
+  border: 2px dashed var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active [class*="fileDrop__layout"]:hover,
+.polar-active [class*="fileDrop__layout"][class*="--dragging"],
+.polar-active [class*="fileDrop__label"]:hover {
+  border-color: var(--polar-ether-bright) !important;
+  background-color: var(--polar-ether-soft) !important;
+}
+.polar-active [class*="fileDrop__label"] [class*="billboard"],
+.polar-active [class*="fileDrop__label"] [class*="billboard"] * {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+/* The drop zone nests a generic InstUI View with an explicit white fill (the
+   illustration/preview area) that the layout rule above doesn't reach. */
+.polar-active [class*="fileDrop__layout"] [class*="-view"],
+.polar-active [class*="fileDrop__label"] [class*="-view"],
+.polar-active [class*="fileDrop__labelContent"] [class*="-view"] {
+  background-color: transparent !important;
+}
+
+/* ---------------------------------------------------------------------
+   22. InstUI Billboard empty/illustration states (merged, all surfaces)
+   transparent so the Night/Ash surface shows through; SVG art untouched
+   --------------------------------------------------------------------- */
+.polar-active [class*="billboard"] {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="billboard__heading"],
+.polar-active [class*="billboard"] h1,
+.polar-active [class*="billboard"] h2 {
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="billboard__message"] {
+  color: var(--polar-mist) !important;
+}
+
+/* ---------------------------------------------------------------------
+   23. Gradebook — SlickGrid (div grid, never reached by the <table> rules)
+   --------------------------------------------------------------------- */
+.polar-active .slick-pane,
+.polar-active .slick-viewport,
+.polar-active .grid-canvas,
+.polar-active #gradebook_grid,
+.polar-active .gradebook-cell,
+.polar-active .slick-cell,
+.polar-active .slick-row.odd .slick-cell,
+.polar-active .slick-row.even .slick-cell {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .slick-row:hover .slick-cell {
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .slick-cell.active {
+  box-shadow: inset 0 0 0 2px var(--polar-ether-bright) !important;
+}
+/* Column headers (jQuery-UI light gradient) */
+.polar-active .slick-header,
+.polar-active .slick-header-columns,
+.polar-active .slick-headerrow,
+.polar-active .slick-header-column {
+  background: var(--polar-raised-2) !important;
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .slick-header-column.ui-state-hover,
+.polar-active .slick-header-column:hover {
+  background: var(--polar-line-2) !important;
+}
+.polar-active .Gradebook__ColumnHeaderContent,
+.polar-active .Gradebook__ColumnHeaderDetail,
+.polar-active .Gradebook__ColumnHeaderDetailLine {
+  color: var(--polar-snow) !important;
+}
+/* Frozen student column + Total column */
+.polar-active .slick-pane-left,
+.polar-active .slick-cell.meta-cell,
+.polar-active .slick-cell.total_grade,
+.polar-active .total_grade {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-foreground) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .student-name,
+.polar-active .student_name,
+.polar-active .slick-cell .student-grades-link {
+  color: var(--polar-snow) !important;
+}
+.polar-active .slick-cell.total_grade .grades,
+.polar-active .slick-cell.total_grade .percentage {
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+/* In-cell grade editor */
+.polar-active .slick-cell.editable,
+.polar-active .gradebook-cell.editable {
+  background-color: var(--polar-void) !important;
+}
+.polar-active .slick-cell input,
+.polar-active .gradebook-cell input,
+.polar-active .Grid__GradeCell input,
+.polar-active .editable-cell input {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-foreground) !important;
+  border: 1px solid var(--polar-ether-bright) !important;
+  box-shadow: none !important;
+  font-family: var(--polar-mono) !important;
+}
+/* Submission status tints — darkened but hue-preserving */
+.polar-active .gradebook-cell.late,
+.polar-active .slick-cell.late { background-color: #16243a !important; }
+.polar-active .gradebook-cell.missing,
+.polar-active .slick-cell.missing { background-color: #3a1620 !important; }
+.polar-active .gradebook-cell.resubmitted,
+.polar-active .slick-cell.resubmitted { background-color: #2c2410 !important; }
+.polar-active .gradebook-cell.dropped,
+.polar-active .slick-cell.dropped,
+.polar-active .gradebook-cell.excused,
+.polar-active .slick-cell.excused { background-color: var(--polar-raised-2) !important; }
+
+/* ---------------------------------------------------------------------
+   24. SpeedGrader (underscore-id full-page layout) + Student Grades page
+   --------------------------------------------------------------------- */
+.polar-active #full_width_container,
+.polar-active #left_side,
+.polar-active #left_side_inner,
+.polar-active #right_side,
+.polar-active #right_side_inner,
+.polar-active #gradebook_header,
+.polar-active #combo_box_container,
+.polar-active #width_resizer {
+  background-color: var(--polar-night) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #gradebook_header {
+  border-bottom: 1px solid var(--polar-line) !important;
+}
+.polar-active #combo_box_container .ui-selectmenu,
+.polar-active #students_selectmenu-button {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+/* Comment feed + composer */
+.polar-active #comments,
+.polar-active #comment_list {
+  background-color: transparent !important;
+}
+.polar-active #comment_list .comment,
+.polar-active #comments .comment {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #comment_list .comment .draft-marker,
+.polar-active #comment_list .comment .comment_citation {
+  color: var(--polar-mist) !important;
+}
+.polar-active #add_a_comment,
+.polar-active #add_a_comment textarea,
+.polar-active #speed_grader_comment_textarea_mount_point textarea,
+.polar-active textarea#comment {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-foreground) !important;
+  border-color: var(--polar-line-2) !important;
+}
+/* Rubric panel */
+.polar-active #rubric_holder,
+.polar-active #rubric_full,
+.polar-active #rubric_summary_holder,
+.polar-active .rubric_container,
+.polar-active .rubric_container .rubric,
+.polar-active .rubric .criterion,
+.polar-active .rubric td,
+.polar-active .rubric .rating {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .rubric .criterion_description,
+.polar-active .rubric .description_title {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .rubric .rating.selected,
+.polar-active .rubric .criterion.selected,
+.polar-active .rubric .rating:hover {
+  background-color: var(--polar-ether-soft) !important;
+  border-color: var(--polar-ether-line) !important;
+  color: var(--polar-foreground) !important;
+}
+/* Grade entry box */
+.polar-active #grade_container .score,
+.polar-active #grade_container .rubric_total {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #grade_container input,
+.polar-active #grading_box_selected_grade,
+.polar-active input.grading_value {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-foreground) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  font-family: var(--polar-mono) !important;
+}
+.polar-active #grade_container input:focus,
+.polar-active #grading_box_selected_grade:focus {
+  border-color: var(--polar-ether-bright) !important;
+  box-shadow: 0 0 0 3px var(--polar-ether-soft) !important;
+}
+/* Submission Details (student feedback page) — the comment column wraps in an
+   unclassed white div; .comments is a class here (the #comments id rule misses
+   it). The submission preview iframe is often a cross-origin LTI (left as-is). */
+.polar-active .submission-details-comments,
+.polar-active .submission-details-comments > div,
+.polar-active .comments {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .comments .comment {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .comments .comment .author,
+.polar-active .comments .comment b {
+  color: var(--polar-foreground) !important;
+}
+.polar-active .comments .comment .posted_at,
+.polar-active .comments .comment .date {
+  color: var(--polar-mist) !important;
+}
+.polar-active .submission-details-frame,
+.polar-active .submission-details-container,
+.polar-active #preview_frame {
+  background-color: var(--polar-night) !important;
+}
+
+/* Student Grades page comment rows / rubric popover / final grade */
+.polar-active #grades_summary tr.comments td,
+.polar-active #grades_summary .score_details td,
+.polar-active .rubric_assessments,
+.polar-active .rubric_assessments .rubric,
+.polar-active .rubric_assessments .criterion,
+.polar-active .rubric_assessments .rating,
+.polar-active .final_grade,
+.polar-active #student-grades-right-content .details,
+.polar-active .student_assignment .details {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .final_grade .grade,
+.polar-active .student_assignment .grade,
+.polar-active .student_assignment .score_value {
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------
+   25. RCE — TinyMCE oxide skin (.tox-*) + Canvas wrapper + legacy .mce-*
+   Backdrops (.tox-dialog-wrap) intentionally untouched.
+   --------------------------------------------------------------------- */
+.polar-active .tox.tox-tinymce {
+  background-color: var(--polar-night) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: none !important;
+}
+.polar-active .tox:not(.tox-tinymce-inline) .tox-editor-header,
+.polar-active .tox .tox-toolbar,
+.polar-active .tox .tox-toolbar__primary,
+.polar-active .tox .tox-toolbar-overlord,
+.polar-active .tox .tox-toolbar__group,
+.polar-active .tox .tox-menubar {
+  background-color: var(--polar-ash) !important;
+  background-image: none !important;
+  border-color: var(--polar-line) !important;
+}
+/* Toolbar + menubar buttons / icons */
+.polar-active .tox .tox-tbtn,
+.polar-active .tox .tox-mbtn {
+  color: var(--polar-snow) !important;
+  background: transparent !important;
+}
+.polar-active .tox .tox-tbtn svg,
+.polar-active .tox .tox-icon svg,
+.polar-active .tox .tox-tbtn__select-chevron svg {
+  fill: var(--polar-snow) !important;
+}
+.polar-active .tox .tox-tbtn__select-label,
+.polar-active .tox .tox-mbtn__select-label {
+  color: var(--polar-snow) !important;
+}
+.polar-active .tox .tox-tbtn:hover,
+.polar-active .tox .tox-tbtn:focus,
+.polar-active .tox .tox-mbtn:hover,
+.polar-active .tox .tox-mbtn--active,
+.polar-active .tox .tox-split-button:hover {
+  background-color: var(--polar-raised-2) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .tox .tox-tbtn:hover svg,
+.polar-active .tox .tox-tbtn:focus svg {
+  fill: var(--polar-foreground) !important;
+}
+.polar-active .tox .tox-tbtn--enabled,
+.polar-active .tox .tox-tbtn--enabled:hover {
+  background-color: var(--polar-ether-soft) !important;
+}
+.polar-active .tox .tox-tbtn--enabled svg {
+  fill: var(--polar-ether-bright) !important;
+}
+/* Dropdown menus + collections */
+.polar-active .tox .tox-menu,
+.polar-active .tox .tox-collection,
+.polar-active .tox .tox-collection--list {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active .tox .tox-collection__item,
+.polar-active .tox .tox-collection__item-label,
+.polar-active .tox .tox-collection__item-label * {
+  color: var(--polar-snow) !important;
+}
+.polar-active .tox .tox-collection__item-icon svg {
+  fill: var(--polar-snow) !important;
+}
+.polar-active .tox .tox-collection__item-accessory,
+.polar-active .tox .tox-collection__group-heading {
+  color: var(--polar-mist) !important;
+}
+.polar-active .tox .tox-collection__item--active,
+.polar-active .tox .tox-collection__item--enabled {
+  background-color: var(--polar-ether-soft) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .tox .tox-collection__group,
+.polar-active .tox .tox-collection__group-heading {
+  border-color: var(--polar-line) !important;
+  background-color: var(--polar-ash) !important;
+}
+/* Dialogs */
+.polar-active .tox .tox-dialog,
+.polar-active .tox .tox-dialog__header,
+.polar-active .tox .tox-dialog__body,
+.polar-active .tox .tox-dialog__footer {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .tox .tox-dialog {
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active .tox .tox-dialog__title { color: var(--polar-foreground) !important; }
+.polar-active .tox .tox-dialog__body-nav-item { color: var(--polar-mist) !important; }
+.polar-active .tox .tox-dialog__body-nav-item--active {
+  color: var(--polar-foreground) !important;
+  border-bottom-color: var(--polar-ether-bright) !important;
+}
+.polar-active .tox .tox-dialog__body-content { color: var(--polar-snow) !important; }
+/* Dialog form fields */
+.polar-active .tox .tox-textfield,
+.polar-active .tox .tox-textarea,
+.polar-active .tox .tox-selectfield select,
+.polar-active .tox .tox-listbox,
+.polar-active .tox .tox-toolbar-textfield {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  color: var(--polar-foreground) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active .tox .tox-textfield:focus,
+.polar-active .tox .tox-textarea:focus,
+.polar-active .tox .tox-listbox:focus {
+  border-color: var(--polar-ether-bright) !important;
+  box-shadow: 0 0 0 3px var(--polar-ether-soft) !important;
+  outline: none !important;
+}
+.polar-active .tox .tox-label,
+.polar-active .tox .tox-form__group > label { color: var(--polar-mist) !important; }
+.polar-active .tox .tox-listbox__select-chevron svg { fill: var(--polar-snow) !important; }
+/* Dialog footer buttons */
+.polar-active .tox .tox-button {
+  background-color: var(--polar-ether) !important;
+  background-image: none !important;
+  border: 1px solid var(--polar-ether) !important;
+  color: #ffffff !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active .tox .tox-button:hover {
+  background-color: var(--polar-ether-bright) !important;
+  border-color: var(--polar-ether-bright) !important;
+}
+.polar-active .tox .tox-button--secondary,
+.polar-active .tox .tox-button--naked {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .tox .tox-button--secondary:hover,
+.polar-active .tox .tox-button--naked:hover {
+  background-color: #2c2c2c !important;
+  border-color: var(--polar-mist) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .tox .tox-button--naked svg { fill: var(--polar-snow) !important; }
+/* Inline context toolbar + tooltips (detached aux root) */
+.polar-active .tox-tinymce-aux .tox-pop .tox-pop__dialog,
+.polar-active .tox-tinymce-aux .tox-toolbar {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active .tox-tinymce-aux .tox-pop::before,
+.polar-active .tox-tinymce-aux .tox-pop::after {
+  border-top-color: var(--polar-line-2) !important;
+  border-bottom-color: var(--polar-line-2) !important;
+}
+.polar-active .tox .tox-tooltip__body {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-snow) !important;
+  border: 1px solid var(--polar-line) !important;
+  box-shadow: none !important;
+}
+.polar-active .tox .tox-tooltip__arrow { border-top-color: var(--polar-void) !important; }
+/* Status bar + edit-area wrapper (iframe body is a separate doc — left alone) */
+.polar-active .tox .tox-statusbar {
+  background-color: var(--polar-ash) !important;
+  border-top: 1px solid var(--polar-line) !important;
+  color: var(--polar-mist) !important;
+}
+.polar-active .tox .tox-statusbar__path-item,
+.polar-active .tox .tox-statusbar__wordcount,
+.polar-active .tox .tox-statusbar a { color: var(--polar-mist) !important; }
+.polar-active .tox .tox-statusbar__path-item:hover,
+.polar-active .tox .tox-statusbar a:hover { color: var(--polar-foreground) !important; }
+.polar-active .tox .tox-statusbar__resize-handle svg { fill: var(--polar-mist) !important; }
+.polar-active .tox .tox-edit-area,
+.polar-active .tox .tox-sidebar-wrap,
+.polar-active .tox .tox-sidebar,
+.polar-active .tox .tox-edit-area__iframe {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line) !important;
+}
+/* Canvas RCE wrapper + switch-to-HTML link */
+.polar-active .rce-wrapper,
+.polar-active .rce-texarea-container {
+  background-color: var(--polar-night) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .rce-wrapper [class*="statusBar"],
+.polar-active .rce-wrapper .RceCommandShortcut {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active a.switch-views__link,
+.polar-active .rce-wrapper a[class*="switch"] { color: var(--polar-mist) !important; }
+.polar-active a.switch-views__link:hover { color: var(--polar-foreground) !important; }
+/* Legacy TinyMCE 4 (.mce-*) fallback */
+.polar-active .mce-panel,
+.polar-active .mce-toolbar,
+.polar-active .mce-menubar,
+.polar-active .mce-statusbar,
+.polar-active .mce-tinymce {
+  background-color: var(--polar-ash) !important;
+  background-image: none !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .mce-btn {
+  background-color: var(--polar-raised-2) !important;
+  background-image: none !important;
+  border-color: var(--polar-line-2) !important;
+}
+.polar-active .mce-btn:hover { background-color: #2c2c2c !important; }
+.polar-active .mce-ico,
+.polar-active .mce-btn span,
+.polar-active .mce-menubtn span { color: var(--polar-snow) !important; }
+.polar-active .mce-menu,
+.polar-active .mce-menu-item {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .mce-menu-item:hover,
+.polar-active .mce-menu-item.mce-active { background-color: var(--polar-ether-soft) !important; }
+
+/* ---------------------------------------------------------------------
+   26. Quizzes — classic take/results/stats (legacy markup)
+   Status hues preserved as inset left bars, never flattened away.
+   --------------------------------------------------------------------- */
+.polar-active .question_holder .question.correct,
+.polar-active .question_holder .question.incorrect,
+.polar-active .question_holder .question.partial_credit,
+.polar-active .question_holder .question.ungraded,
+.polar-active .question_holder .question.text_only_question {
+  background-color: var(--polar-ash) !important;
+  border-left: 3px solid var(--polar-line-2) !important;
+}
+.polar-active .question_holder .question.correct { border-left-color: #3f9a52 !important; }
+.polar-active .question_holder .question.incorrect { border-left-color: #b3514f !important; }
+.polar-active .question_holder .question.partial_credit { border-left-color: #b88a2e !important; }
+/* Question header bar */
+.polar-active .question .header,
+.polar-active .question_holder .question .header {
+  background-color: var(--polar-raised-2) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .question .header .name,
+.polar-active .question .question_name { color: var(--polar-foreground) !important; }
+.polar-active .question .question_points,
+.polar-active .question .points.question_points,
+.polar-active .question .user_points {
+  color: var(--polar-mist) !important;
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+/* Answer states (existing rule only does .answer:hover) */
+.polar-active .answers .answer {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .answers .answer.selected_answer {
+  background-color: var(--polar-ether-soft) !important;
+  box-shadow: inset 3px 0 0 var(--polar-ether-bright) !important;
+}
+.polar-active .answers .answer.correct_answer {
+  background-color: rgba(63, 154, 82, 0.12) !important;
+  box-shadow: inset 3px 0 0 #3f9a52 !important;
+}
+.polar-active .answers .answer.wrong_answer {
+  background-color: rgba(179, 81, 79, 0.12) !important;
+  box-shadow: inset 3px 0 0 #b3514f !important;
+}
+.polar-active .answer .answer_text,
+.polar-active .answer .answer_label { color: var(--polar-snow) !important; }
+/* Question-navigator sidebar */
+.polar-active .quiz-nav,
+.polar-active #question_list,
+.polar-active .quiz-nav #question_list {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active #question_list .list_question,
+.polar-active #question_list li > a {
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active #question_list .list_question.answered,
+.polar-active #question_list .list_question.answered > a { color: var(--polar-foreground) !important; }
+.polar-active #question_list .list_question.marked,
+.polar-active #question_list .list_question.marked > a { color: var(--polar-ether-bright) !important; }
+/* Timer / autosave bar */
+.polar-active .quiz-submit-info,
+.polar-active #last_saved_indicator,
+.polar-active #time_running,
+.polar-active .time_running,
+.polar-active #countdown_container {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active #time_running,
+.polar-active .time_running {
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+/* New Quizzes LTI iframe — kill the white load-flash (iframe is cross-origin) */
+.polar-active .tool_content_wrapper,
+.polar-active #tool_content_wrapper,
+.polar-active #content.ic-Layout-contentMain > .tool_content_wrapper,
+.polar-active iframe.tool_launch,
+.polar-active .tool_content_wrapper > iframe,
+.polar-active [id^="tool_content"] {
+  background-color: var(--polar-night) !important;
+}
+/* Quiz landing — score + lock/availability notices */
+.polar-active .quiz-header .description,
+.polar-active #quiz_show .description {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .quiz_score,
+.polar-active .quiz_score .question_points {
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+.polar-active .lock_explanation,
+.polar-active .quiz_message,
+.polar-active #quiz-show-details .alert {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-left: 3px solid var(--polar-mist) !important;
+  color: var(--polar-snow) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+/* Typed/fill-in/essay result blocks + answer arrows */
+.polar-active .user_answer,
+.polar-active .quiz_response_text,
+.polar-active .essay_question .user_content {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .answer_arrow {
+  background-color: var(--polar-raised-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .answer_arrow.correct { color: #6fc385 !important; }
+.polar-active .answer_arrow.incorrect { color: #d98b89 !important; }
+/* Statistics page cards + distribution bars */
+.polar-active #summary_data,
+.polar-active .summary-statistics,
+.polar-active .detail_section,
+.polar-active .question-statistics,
+.polar-active .question_statistics {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .question-statistics .answer-row .bar,
+.polar-active .question_statistics .bar { background-color: var(--polar-ether-bright) !important; }
+.polar-active .question-statistics .question-text,
+.polar-active .detail_section h2 { color: var(--polar-foreground) !important; }
+/* Unanswered warning + flagged question */
+.polar-active #unanswered_questions_warning,
+.polar-active .quiz_submit .alert {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-left: 3px solid var(--polar-ether-bright) !important;
+  color: var(--polar-snow) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active .question_holder .question.marked {
+  box-shadow: inset 3px 0 0 var(--polar-ether-bright) !important;
+}
+.polar-active .flag_question.marked,
+.polar-active .flag_question:hover { color: var(--polar-ether-bright) !important; }
+
+/* ---------------------------------------------------------------------
+   27. Calendar / Scheduler (legacy classes the .fc-* rules miss)
+   --------------------------------------------------------------------- */
+.polar-active .event-details,
+.polar-active .event-details-content,
+.polar-active .event-details-content-table {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .event-details .details_title,
+.polar-active .event-details-header-row .details_title { color: var(--polar-foreground) !important; }
+.polar-active .event-details-timestring,
+.polar-active .event-details-content-table th,
+.polar-active .event-details .address,
+.polar-active .event-details .location { color: var(--polar-mist) !important; }
+.polar-active .event-details-footer {
+  border-top: 1px solid var(--polar-line) !important;
+  background-color: transparent !important;
+}
+/* Generic Bootstrap popover shell + carat (used by calendar) */
+.polar-active .popover,
+.polar-active .popover-content {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active .popover-title {
+  background-color: var(--polar-raised-2) !important;
+  color: var(--polar-foreground) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+}
+.polar-active .popover .carat,
+.polar-active .popover > .carat {
+  border-top-color: var(--polar-ash) !important;
+  border-bottom-color: var(--polar-ash) !important;
+}
+/* Agenda view */
+.polar-active .agenda-wrapper,
+.polar-active .agenda-event__list { background-color: var(--polar-night) !important; }
+.polar-active .agenda-day { border-color: var(--polar-line) !important; }
+.polar-active .agenda-date {
+  color: var(--polar-foreground) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  background-color: transparent !important;
+}
+.polar-active .agenda-event__title { color: var(--polar-foreground) !important; }
+.polar-active .agenda-event__time {
+  color: var(--polar-mist) !important;
+  font-family: var(--polar-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
+/* Mini-month sidebar body (existing rule only does today's number) */
+.polar-active .mini_month,
+.polar-active .mini-cal {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .mini-cal-header,
+.polar-active .mini-cal-month-name { color: var(--polar-foreground) !important; }
+.polar-active .mini_month thead th,
+.polar-active .mini_month .day_name { color: var(--polar-mist) !important; }
+.polar-active .mini_month td.day {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .mini_month td.day .day_number { color: var(--polar-snow) !important; }
+.polar-active .mini_month td.day.other_month .day_number { color: var(--polar-mist) !important; opacity: 0.5; }
+.polar-active .mini_month td.day:hover { background-color: var(--polar-ash) !important; }
+.polar-active .mini_month td.day.selected { background-color: var(--polar-raised-2) !important; }
+/* Sidebar undated/feed/context lists (underscore classes) */
+.polar-active #undated-events,
+.polar-active .undated-events,
+.polar-active #calendar-feed,
+.polar-active .calendar-list,
+.polar-active .context_list,
+/* The actual sidebar calendar list is id-based, not .context_list */
+.polar-active #calendar-list-holder,
+.polar-active #calendars-context-list,
+.polar-active #calendar-feed-box,
+.polar-active #list-view {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .undated_event,
+.polar-active .context_list_context {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .undated_event:hover,
+.polar-active .context_list_context:hover { background-color: var(--polar-ash) !important; }
+.polar-active .context_list_context .name { color: var(--polar-snow) !important; }
+.polar-active .undated-events-link,
+.polar-active #calendar-feed a { color: var(--polar-mist) !important; }
+/* jQuery-UI datepicker singleton */
+.polar-active #ui-datepicker-div,
+.polar-active .ui-datepicker {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+}
+.polar-active .ui-datepicker .ui-datepicker-header {
+  background: var(--polar-raised-2) !important;
+  border: none !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ui-datepicker .ui-datepicker-title { color: var(--polar-foreground) !important; }
+.polar-active .ui-datepicker td a,
+.polar-active .ui-datepicker td span {
+  background: var(--polar-void) !important;
+  border: 1px solid var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .ui-datepicker td a:hover {
+  background: var(--polar-raised-2) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ui-datepicker td .ui-state-active,
+.polar-active .ui-datepicker td.ui-datepicker-today a {
+  background: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+.polar-active .ui-datepicker .ui-datepicker-prev,
+.polar-active .ui-datepicker .ui-datepicker-next { filter: invert(1) grayscale(1); }
+/* Appointment-group editor */
+.polar-active .EditAppointmentGroupDetails,
+.polar-active .time-block-list,
+.polar-active .time-block-list-body,
+.polar-active .ag-contexts {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .time-block-row,
+.polar-active .time-block-list-header { border-color: var(--polar-line) !important; }
+.polar-active .time-block-row:hover { background-color: var(--polar-ash) !important; }
+.polar-active .ag-contexts .ag-context,
+.polar-active .group_blocks .group_block {
+  background-color: var(--polar-ash) !important;
+  border-color: var(--polar-line) !important;
+}
+/* Syllabus course-summary table */
+.polar-active #syllabusContainer,
+.polar-active #syllabus,
+.polar-active .syllabus_course_summary {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #syllabus caption { color: var(--polar-foreground) !important; }
+.polar-active #syllabus th { color: var(--polar-mist) !important; border-color: var(--polar-line) !important; }
+.polar-active #syllabus td,
+.polar-active #syllabus td.dates,
+.polar-active #syllabus td.day_date {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #syllabus tr.detail_list td { border-color: var(--polar-line) !important; }
+.polar-active #syllabus tr.events_today,
+.polar-active #syllabus .day.current_day { background-color: var(--polar-ash) !important; }
+
+/* ---------------------------------------------------------------------
+   28. Files / Media (legacy ef-* chrome + InstUI TreeBrowser + mejs)
+   --------------------------------------------------------------------- */
+.polar-active .ef-file-preview-container,
+.polar-active .ef-file-preview-stretch,
+.polar-active .ef-file-preview-frame-outer {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .ef-file-preview-header {
+  background-color: var(--polar-void) !important;
+  border-bottom: 1px solid var(--polar-line) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ef-file-preview-information {
+  background-color: var(--polar-ash) !important;
+  border-left: 1px solid var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .ef-file-preview-header-filename,
+.polar-active .ef-file-preview-information a,
+.polar-active .ef-file-preview-information .ef-file-preview-information-label { color: var(--polar-snow) !important; }
+/* InstUI TreeBrowser (Move-To dialog + folder tree) */
+.polar-active [class*="-treeBrowser"],
+.polar-active [class*="-treeCollection"] {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="-treeButton__layout"],
+.polar-active [class*="-treeButton__text"] {
+  color: var(--polar-snow) !important;
+  background-color: transparent !important;
+}
+.polar-active [class*="-treeButton__layout"]:hover,
+.polar-active [aria-selected="true"] > [class*="-treeButton__layout"],
+.polar-active [class*="-treeButton"][class*="selected"] {
+  background-color: var(--polar-ether-soft) !important;
+  color: var(--polar-foreground) !important;
+}
+/* Legacy folder-tree rows */
+.polar-active .ef-folder-header,
+.polar-active .ef-folder-list .treeLabel { color: var(--polar-snow) !important; }
+.polar-active .ef-folder-header:hover {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .ef-folder.active > .ef-folder-header,
+.polar-active .ef-folder-list a.active {
+  background-color: var(--polar-ash) !important;
+  border-left: 3px solid var(--polar-ether-bright) !important;
+  color: var(--polar-foreground) !important;
+}
+/* Drag-to-folder highlight */
+.polar-active .ef-item-row.activeDragTarget,
+.polar-active .ef-folder-content.activeDragTarget,
+.polar-active .activeDragTarget {
+  background-color: var(--polar-ether-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--polar-ether-line) !important;
+}
+/* Media player (mejs) — actual media untouched by the img/video filter rule */
+.polar-active .CanvasMediaPlayer,
+.polar-active .mejs-container,
+.polar-active .mejs-mediaelement,
+.polar-active .mejs-controls,
+.polar-active .mejs-embed { background: var(--polar-void) !important; }
+.polar-active .mejs-controls .mejs-time,
+.polar-active .mejs-controls .mejs-time span { color: var(--polar-snow) !important; }
+.polar-active .mejs-controls .mejs-time-rail .mejs-time-total,
+.polar-active .mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-total { background: var(--polar-line) !important; }
+.polar-active .mejs-controls .mejs-time-rail .mejs-time-loaded { background: var(--polar-line-2) !important; }
+.polar-active .mejs-controls .mejs-time-rail .mejs-time-current,
+.polar-active .mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-current { background: var(--polar-ether-bright) !important; }
+/* Usage Rights dialog */
+.polar-active .UsageRightsDialog__paddingFix,
+.polar-active .UsageRightsSelectBox__container {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .UsageRightsSelectBox__select select,
+.polar-active .UsageRightsSelectBox__copyright input {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active .UsageRightsIndicator__icon,
+.polar-active .UsageRightsDialog__paddingFix .ef-usage-rights-help { color: var(--polar-mist) !important; }
+
+/* ---------------------------------------------------------------------
+   29. InstUI form controls (Select/Options, Calendar, NumberInput,
+   ToggleDetails, Checkbox/Toggle facades)
+   --------------------------------------------------------------------- */
+.polar-active [role="listbox"],
+.polar-active ul[class*="-options"] {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line-2) !important;
+  border-radius: var(--polar-radius) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [role="option"],
+.polar-active [class*="optionItem"] {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [role="option"]:hover,
+.polar-active [role="option"][aria-selected="true"],
+.polar-active [class*="optionItem"]:hover,
+.polar-active [class*="optionItem--highlighted"],
+.polar-active [class*="optionItem--selected"] {
+  background-color: var(--polar-ether-soft) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="options__label"],
+.polar-active [class*="optionsSeparator"] {
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+}
+/* InstUI Calendar day grid */
+.polar-active [class*="calendarNavigation"] {
+  background-color: transparent !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="calendarDay"] {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active [class*="calendarDay"]:hover {
+  background-color: var(--polar-raised-2) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="calendarDay--today"] {
+  box-shadow: inset 0 0 0 1px var(--polar-ether-bright) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="calendarDay--selected"] {
+  background-color: var(--polar-ether) !important;
+  color: #ffffff !important;
+}
+.polar-active [class*="calendarDay--outsideMonth"] { color: var(--polar-mist) !important; }
+/* NumberInput facade + stepper arrows */
+.polar-active [class*="numberInput__layout"] {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+}
+.polar-active [class*="numberInput__input"] {
+  background-color: transparent !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="numberInput__arrowContainer"],
+.polar-active [class*="numberInput__arrow"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="numberInput__arrow"]:hover {
+  background-color: var(--polar-line-2) !important;
+  color: var(--polar-foreground) !important;
+}
+.polar-active [class*="numberInput__arrow"] svg { fill: var(--polar-snow) !important; }
+/* ToggleDetails disclosure */
+.polar-active [class*="toggleDetails__summary"],
+.polar-active [class*="toggleDetails__toggle"] { color: var(--polar-foreground) !important; }
+.polar-active [class*="toggleDetails__icon"] svg { fill: var(--polar-snow) !important; }
+.polar-active [class*="toggleDetails__details"] {
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+/* Checkbox facade (parallel to existing radioInput__facade) */
+.polar-active [class*="checkbox__facade"],
+.polar-active [class*="checkboxFacade"] {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+  color: #ffffff !important;
+}
+.polar-active input:checked + label [class*="checkbox__facade"],
+.polar-active input:checked ~ [class*="checkbox__facade"],
+.polar-active input:checked ~ label [class*="checkboxFacade"],
+.polar-active input:checked + [class*="checkboxFacade"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+/* Toggle-switch facade */
+.polar-active [class*="toggleFacade"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+}
+.polar-active input:checked + label [class*="toggleFacade"],
+.polar-active input:checked ~ label [class*="toggleFacade"],
+.polar-active input:checked ~ [class*="toggleFacade"] {
+  background-color: var(--polar-ether) !important;
+  border-color: var(--polar-ether) !important;
+}
+/* Legacy field-error callout ONLY (formFieldMessage hint-color override
+   intentionally dropped — it shares the suffix with semantic error text) */
+.polar-active .error_box,
+.polar-active .error_text {
+  background-color: #2a1414 !important;
+  border-color: #5a2a2a !important;
+  color: #e6a6a6 !important;
+}
+
+/* ---------------------------------------------------------------------
+   30. InstUI emotion Table (colHeader/view-cell/view-body) — merged.
+   Transparent fills so nothing already-dark is harmed.
+   --------------------------------------------------------------------- */
+.polar-active [class*="-view-table"],
+.polar-active [class*="-table"][role="table"],
+.polar-active [class*="-view-body"] {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="-view-cell"] {
+  background-color: transparent !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active [class*="-colHeader"] {
+  background-color: transparent !important;
+  color: var(--polar-mist) !important;
+  border-color: var(--polar-line) !important;
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------
+   31. InstUI atoms — Tag, Pill, ProgressBar track, Breadcrumb, Avatar
+   --------------------------------------------------------------------- */
+.polar-active [class*="-tag__"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="-tag__"] svg { fill: var(--polar-mist) !important; }
+/* Pill — chrome only; TEXT left alone so success/danger variants stay legible */
+.polar-active [class*="-pill"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line-2) !important;
+}
+/* ProgressBar trough/track (existing rule colors only the meter fill) */
+.polar-active [class*="progressBar__trough"],
+.polar-active [class*="progressBar__track"],
+.polar-active .progress {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line) !important;
+  box-shadow: none !important;
+}
+/* InstUI Breadcrumb (distinct from legacy #breadcrumbs) */
+.polar-active [class*="-breadcrumb"] { background-color: transparent !important; }
+.polar-active [class*="-breadcrumb"] a,
+.polar-active [class*="-breadcrumb"] span { color: var(--polar-mist) !important; }
+.polar-active [class*="-breadcrumb"] li:last-child a,
+.polar-active [class*="-breadcrumb"] li:last-child span { color: var(--polar-snow) !important; }
+.polar-active [class*="-breadcrumb"] svg { fill: var(--polar-line-2) !important; }
+/* Avatar initials fallback — real <img>/bg-image still covers the circle */
+.polar-active span[class*="-avatar"] {
+  background-color: var(--polar-raised-2) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+
+/* ---------------------------------------------------------------------
+   32. Legacy page surfaces — activity stream, settings, groups, profile,
+   ePortfolio, export/import, info-only account banner
+   --------------------------------------------------------------------- */
+.polar-active .stream-activity,
+.polar-active .stream-activity__item,
+.polar-active .ic-stream-item,
+.polar-active .recent_activity {
+  background-color: var(--polar-ash) !important;
+  color: var(--polar-snow) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .ic-stream-item:hover,
+.polar-active .stream-activity__item:hover { background-color: var(--polar-raised-2) !important; }
+.polar-active .stream-activity .stream_header,
+.polar-active .ic-stream-item .stream-activity__item-time { color: var(--polar-mist) !important; }
+/* Course Settings → Navigation reorder lists */
+.polar-active #nav_enabled_list,
+.polar-active #nav_disabled_list {
+  background-color: var(--polar-void) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+}
+.polar-active li.navitem {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #nav_disabled_list li.navitem,
+.polar-active li.navitem.disabled {
+  background-color: var(--polar-void) !important;
+  color: var(--polar-mist) !important;
+}
+.polar-active li.navitem:hover { background-color: var(--polar-raised-2) !important; }
+/* Course Settings → Sections */
+.polar-active ul#course_sections > li.section {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active ul#course_sections > li.section:hover { background-color: var(--polar-raised-2) !important; }
+.polar-active #course_sections li.section .users_count,
+.polar-active #course_sections li.section .sis_source_id { color: var(--polar-mist) !important; }
+/* Feature Options + Super-toggle */
+.polar-active .feature-flag,
+.polar-active [class*="featureFlag"] {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .feature-flag .feature-title,
+.polar-active .feature-flag h3 { color: var(--polar-foreground) !important; }
+.polar-active .feature-flag .feature-detail,
+.polar-active .feature-flag .description { color: var(--polar-mist) !important; }
+.polar-active .ic-Super-toggle__container,
+.polar-active .ic-Super-toggle__option {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line-2) !important;
+  color: var(--polar-mist) !important;
+}
+.polar-active .ic-Super-toggle__input:checked + .ic-Super-toggle__container .ic-Super-toggle__switch {
+  background-color: var(--polar-ether) !important;
+}
+/* Profile + Ways to Contact */
+.polar-active .profile_table,
+.polar-active .channel_list,
+.polar-active table.email_channels {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .profile_table td,
+.polar-active .profile_table th,
+.polar-active .channel_list td,
+.polar-active .channel_list th {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active .channel_list .unconfirmed,
+.polar-active .email_channels .unconfirmed,
+.polar-active .profile-link { color: var(--polar-mist) !important; }
+/* Groups */
+.polar-active .group_category,
+.polar-active .student-group-container,
+.polar-active .ic-Group {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .group-category-boxes .group_blank {
+  background-color: var(--polar-void) !important;
+  border: 1px dashed var(--polar-line-2) !important;
+  border-radius: var(--polar-radius) !important;
+  color: var(--polar-mist) !important;
+}
+.polar-active .ic-Group .group-heading,
+.polar-active .group .group-heading { color: var(--polar-foreground) !important; }
+.polar-active li.group_user {
+  background-color: var(--polar-night) !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+/* Legacy user-detail blocks (the InstUI tray itself is handled by §18 tray__content) */
+.polar-active .user_details,
+.polar-active .more_user_information,
+.polar-active .enrollments,
+.polar-active .context_box {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .user_details .name,
+.polar-active .user_details h2 { color: var(--polar-foreground) !important; }
+/* ePortfolio */
+.polar-active .eportfolio_wrapper,
+.polar-active .eportfolio_view {
+  background-color: var(--polar-night) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active #eportfolio_sidebar,
+.polar-active #section_list,
+.polar-active #page_list {
+  background-color: var(--polar-void) !important;
+  border-color: var(--polar-line) !important;
+}
+.polar-active #section_list li a,
+.polar-active #page_list li a { color: var(--polar-mist) !important; }
+.polar-active #section_list li.active a,
+.polar-active #page_list li.active a {
+  color: var(--polar-foreground) !important;
+  background-color: var(--polar-ash) !important;
+}
+.polar-active .eportfolio_view .section,
+.polar-active .eportfolio-section {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius) !important;
+  color: var(--polar-snow) !important;
+}
+/* Content export / import */
+.polar-active ul.content_exports,
+.polar-active ul.content_exports li,
+.polar-active .exports {
+  background-color: transparent !important;
+  border-color: var(--polar-line) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active [class*="migrationProgress"],
+.polar-active .progressStatus {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+/* Account notification — INFORMATION variant only (warning/error keep hue) */
+.polar-active .account_notification.notification_information,
+.polar-active li.account_notification.notification_information,
+.polar-active .AccountNotifications .notification_information {
+  background-color: var(--polar-ash) !important;
+  border: 1px solid var(--polar-line) !important;
+  border-radius: var(--polar-radius-sm) !important;
+  color: var(--polar-snow) !important;
+}
+.polar-active .account_notification.notification_information a { color: var(--polar-snow) !important; }
