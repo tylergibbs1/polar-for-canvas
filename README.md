@@ -6,6 +6,11 @@ and Neue Montreal / Geist Mono typography.
 
 Built with [WXT](https://wxt.dev).
 
+```bash
+npm install
+npm run dev   # launches Chrome with the extension loaded; open any Canvas page
+```
+
 ```
 Night   #171717  Surface
 Ash     #1D1D1D  Raised
@@ -28,7 +33,7 @@ Ether   #3619CC  Accent  — reserved for energy
   `canvas.okstate.edu`) — the content script fingerprints Canvas before applying.
 - Toggle on/off from the popup; the preference syncs across devices.
 
-## Install (development)
+## Development
 
 ```bash
 npm install
@@ -43,7 +48,8 @@ npm run dev:firefox  # Firefox
 ```bash
 npm run build         # → .output/chrome-mv3
 npm run build:firefox # → .output/firefox-mv2
-npm run zip           # store-ready zip
+npm run zip           # store-ready zip (Chrome)
+npm run zip:firefox   # store-ready zip (Firefox)
 ```
 
 To load the production build manually: `chrome://extensions` → enable Developer
@@ -72,10 +78,13 @@ theme doesn't apply, open an issue with the domain.
 
 ## Typography note
 
-**PP Neue Montreal** is a commercial typeface and is not bundled; the theme falls
-back to **Inter**. **Geist Mono** is open and loaded from Google Fonts at runtime
-(best-effort — some Canvas CSP configurations may block it, in which case the
-system monospace is used).
+**PP Neue Montreal** is a commercial typeface. Only the Medium weight is bundled
+(`public/fonts/PPNeueMontreal-Medium.woff2`); Book and SemiBold fall back to it
+until you add your own licensed files. If no Neue Montreal file loads, the theme
+falls back to **Inter**. **Geist Mono** is open and loaded from Google Fonts at
+runtime (best-effort: some Canvas CSP configurations may block it, in which case
+the system monospace is used). See [`public/fonts/README.md`](public/fonts/README.md)
+for the expected filenames and how to bundle Geist Mono locally.
 
 ## Known limitations
 
